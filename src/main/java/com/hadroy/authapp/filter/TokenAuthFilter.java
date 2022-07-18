@@ -3,14 +3,13 @@ package com.hadroy.authapp.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hadroy.authapp.model.response.ResponseError;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -19,6 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.hadroy.authapp.filter.RequestAuthenticationFilter.SECRET_KEY;
@@ -48,10 +48,13 @@ public class TokenAuthFilter extends OncePerRequestFilter {
                     Claims claimsJws = Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
 
                     String username = claimsJws.getSubject();
-                    UserDetails user = userDetailsService.loadUserByUsername(username);
+
+                    List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                    List<String> roles = claimsJws.get("roles", List.class);
+                    roles.forEach(role -> authorities.add(new SimpleGrantedAuthority(role)));
 
                     UsernamePasswordAuthenticationToken authenticationToken =
-                            new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                            new UsernamePasswordAuthenticationToken(username, null, authorities);
 
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                     filterChain.doFilter(request, response);

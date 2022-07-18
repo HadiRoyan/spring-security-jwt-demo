@@ -17,24 +17,22 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.*;
-
 @RestControllerAdvice
 public class ExceptionHandleController extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = NotFoundException.class)
     public ResponseEntity<Object> notFoundHandler(NotFoundException notFoundException) {
         return new ResponseEntity<>(
-                new ResponseError(NOT_FOUND.value(),NOT_FOUND.name(), List.of(notFoundException.getMessage())),
-                NOT_FOUND
+                new ResponseError(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.name(), List.of(notFoundException.getMessage())),
+                HttpStatus.NOT_FOUND
         );
     }
 
     @ExceptionHandler(value = UserRegisterException.class)
     public ResponseEntity<Object> userRegisterExceptionHandler(UserRegisterException userRegisterException) {
         return new ResponseEntity<>(
-                new ResponseError(BAD_REQUEST.value(),BAD_REQUEST.name(), List.of(userRegisterException.getMessage())),
-                BAD_REQUEST
+                new ResponseError(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), List.of(userRegisterException.getMessage())),
+                HttpStatus.BAD_REQUEST
         );
     }
 
@@ -49,16 +47,16 @@ public class ExceptionHandleController extends ResponseEntityExceptionHandler {
         }
 
         return new ResponseEntity<>(
-                new ResponseError(BAD_REQUEST.value(), BAD_REQUEST.name(), errors),
-                BAD_REQUEST
+                new ResponseError(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), errors),
+                HttpStatus.BAD_REQUEST
         );
     }
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return new ResponseEntity<>(
-                new ResponseError(INTERNAL_SERVER_ERROR.value(), INTERNAL_SERVER_ERROR.name(), List.of(ex.getMessage())),
-                INTERNAL_SERVER_ERROR
+                new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.name(), List.of(ex.getMessage())),
+                HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
 }
